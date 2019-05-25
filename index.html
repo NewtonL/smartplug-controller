@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <script type="module">
+      import '@polymer/paper-button/paper-button.js'
+      import '@polymer/paper-input/paper-input.js'
+      import './tplink-control.js'
+    </script>
+
+    <style>
+      body {
+        background-color: #020020;
+        font-family: Arial, Helvetica, sans-serif;
+        color: white;
+      }
+      paper-button {
+        background: rgb(179, 0, 149);
+      }
+      #authenticationDiv {
+        width: 50%;
+      }
+      paper-input {
+        --paper-input-container-input-color: white;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="authenticationDiv">
+      <paper-input id="usernameField" label="TP-Link Kasa Username"></paper-input>
+      <paper-input id="passwordField" label="TP-Link Kasa Password"></paper-input>
+      <paper-button id ="authButton" raised>Authenticate</paper-button>
+
+      <tplink-control></tplink-control>
+    </div>
+  </body>
+</html>
