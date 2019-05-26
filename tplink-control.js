@@ -12,6 +12,13 @@ let deviceMessage = {
     method: 'getDeviceList'
 };
 
+let passthroughMessage = {
+    method: 'passthrough',
+    params: {
+        requestData: "{\"system\":{\"set_relay_state\":{\"state\":1}}}"
+    }
+};
+
 class TplinkControl extends PolymerElement {
     static get is() {return 'tplink-control';}
 
@@ -29,6 +36,20 @@ class TplinkControl extends PolymerElement {
                 notify: true
             }
         }
+    }
+
+    connectedCallback() {
+        super.connectedCallback();
+
+        this._queryPlugStatus();
+    }
+
+    _queryPlugStatus() {
+        if (this.device && this.token) {
+            // TODO query plug status
+        }
+
+        setTimeout(this._queryPlugStatus, 1000);
     }
 
     authenticate() {
@@ -67,6 +88,25 @@ class TplinkControl extends PolymerElement {
         }
 
         req.send(JSON.stringify(deviceMessage));
+    }
+
+    togglePlug() {
+        if (!this.device || !this.token)
+            return;
+
+        let req = new XMLHttpRequest();
+        let self = this;
+        req.open('POST', 'https://wap.tplinkcloud.com?token=' + this.token);
+        req.setRequestHeader('Content-type', 'application/json');
+
+        req.onreadystatechange = function() {
+            if(req.readyState == 4 && req.status == 200) {
+                self.result = JSON.stringify(JSON.parse(req.responseText), null, 4);
+            }
+        }
+
+        passthroughMessage.params.deviceId = this.device;
+        req.send(JSON.stringify(passthroughMessage));
     }
 }
 
