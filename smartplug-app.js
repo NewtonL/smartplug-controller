@@ -32,16 +32,24 @@ class SmartplugApp extends PolymerElement {
             <paper-input id="usernameField" label="TP-Link Kasa Username" value="{{username}}"></paper-input>
             <paper-input id="passwordField" type="password" label="TP-Link Kasa Password" value="{{password}}"></paper-input>
             <paper-button id="authButton" on-click="_authenticateClicked" raised>Authenticate</paper-button>
-            <tplink-control id="control" username="{{username}}" password="{{password}}" result="{{result}}"></tplink-control>
+            <tplink-control id="control" username="{{username}}" password="{{password}}" token="{{token}}" result="{{result}}"></tplink-control>
         </div>
         <div>
             <textarea id="resultArea" readonly>{{result}}</textarea>
+        </div>
+        <div id="deviceDiv">
+            <paper-input id="tokenField" label="Token (get this from authentication output)" value="{{token}}"></paper-input>
+            <paper-button id="deviceButton" on-click="_deviceClicked" raised>Get Devices</paper-button>
         </div>
         `;
     }
 
     _authenticateClicked() {
         this.$.control.authenticate();
+    }
+
+    _deviceClicked() {
+        this.$.control.getDevices();
     }
 }
 

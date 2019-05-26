@@ -8,6 +8,10 @@ let authMessage = {
     }
 };
 
+let deviceMessage = {
+    method: 'getDeviceList'
+};
+
 class TplinkControl extends PolymerElement {
     static get is() {return 'tplink-control';}
 
@@ -28,6 +32,9 @@ class TplinkControl extends PolymerElement {
     }
 
     authenticate() {
+        if (!this.username || !this.password)
+            return;
+
         let req = new XMLHttpRequest();
         let self = this;
         req.open('POST', 'https://wap.tplinkcloud.com');
@@ -39,12 +46,27 @@ class TplinkControl extends PolymerElement {
             }
         }
 
-        if (this.username && this.password) {
-            authMessage.params.cloudUserName = this.username;
-            authMessage.params.cloudPassword = this.password;
-            req.send(JSON.stringify(authMessage));
+        authMessage.params.cloudUserName = this.username;
+        authMessage.params.cloudPassword = this.password;
+        req.send(JSON.stringify(authMessage));
+    }
+
+    getDevices() {
+        if (!this.token)
+            return;
+
+        let req = new XMLHttpRequest();
+        let self = this;
+        req.open('POST', 'https://wap.tplinkcloud.com?token=' + this.token);
+        req.setRequestHeader('Content-type', 'application/json');
+
+        req.onreadystatechange = function() {
+            if(req.readyState == 4 && req.status == 200) {
+                self.result = JSON.stringify(JSON.parse(req.responseText), null, 4);
+            }
         }
 
+        req.send(JSON.stringify(deviceMessage));
     }
 }
 
