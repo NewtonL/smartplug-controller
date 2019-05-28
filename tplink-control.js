@@ -15,7 +15,6 @@ let deviceMessage = {
 let passthroughMessage = {
     method: 'passthrough',
     params: {
-        requestData: "{\"system\":{\"set_relay_state\":{\"state\":1}}}"
     }
 };
 
@@ -40,16 +39,6 @@ class TplinkControl extends PolymerElement {
 
     connectedCallback() {
         super.connectedCallback();
-
-        this._queryPlugStatus();
-    }
-
-    _queryPlugStatus() {
-        if (this.device && this.token) {
-            // TODO query plug status
-        }
-
-        setTimeout(this._queryPlugStatus, 1000);
     }
 
     authenticate() {
@@ -106,6 +95,14 @@ class TplinkControl extends PolymerElement {
         }
 
         passthroughMessage.params.deviceId = this.device;
+        passthroughMessage.params.requestData = JSON.stringify({
+            system: {
+                set_relay_state: {
+                    state: this.status ? 0 : 1
+                }
+            }
+        });
+        this.status = !this.status;
         req.send(JSON.stringify(passthroughMessage));
     }
 }
