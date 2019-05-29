@@ -30,6 +30,14 @@ class TplinkControl extends PolymerElement {
         return {
             username: String,
             password: String,
+            token: {
+                type: String,
+                notify: true
+            },
+            device: {
+                type: String,
+                notify: true
+            },
             result: {
                 type: String,
                 notify: true
@@ -52,7 +60,10 @@ class TplinkControl extends PolymerElement {
 
         req.onreadystatechange = function() {
             if(req.readyState == 4 && req.status == 200) {
-                self.result = JSON.stringify(JSON.parse(req.responseText), null, 4);
+                let response = JSON.parse(req.responseText);
+                if (response && response.result && response.result.token)
+                    self.token = response.result.token;
+                self.result = JSON.stringify(response, null, 4);
             }
         }
 
@@ -72,7 +83,13 @@ class TplinkControl extends PolymerElement {
 
         req.onreadystatechange = function() {
             if(req.readyState == 4 && req.status == 200) {
-                self.result = JSON.stringify(JSON.parse(req.responseText), null, 4);
+                let response = JSON.parse(req.responseText);
+                if (response && response.result && response.result.deviceList) {
+                    let devices = response.result.deviceList;
+                    if (devices.length > 0)
+                        self.device = devices[0].deviceId;
+                }
+                self.result = JSON.stringify(response, null, 4);
             }
         }
 
