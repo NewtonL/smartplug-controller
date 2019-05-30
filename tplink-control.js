@@ -115,7 +115,7 @@ class TplinkControl extends PolymerElement {
         passthroughMessage.params.requestData = JSON.stringify({
             system: {
                 set_relay_state: {
-                    state: this.status ? 0 : 1
+                    state: this.status ? 1 : 0
                 }
             }
         });
