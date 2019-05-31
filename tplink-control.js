@@ -18,6 +18,20 @@ let passthroughMessage = {
     }
 };
 
+let statusMessage = {
+    method: 'passthrough',
+    params: {
+        requestData: JSON.stringify({
+            system: {
+                get_sysinfo: null
+            },
+            emeter: {
+                get_realtime: null
+            }
+        })
+    }
+};
+
 class TplinkControl extends PolymerElement {
     static get is() {return 'tplink-control';}
 
@@ -28,16 +42,35 @@ class TplinkControl extends PolymerElement {
 
     static get properties() {
         return {
+            /**
+             * TP-Link Kasa username
+             */
             username: String,
+            
+            /**
+             * TP-Link Kasa password
+             */
             password: String,
+
+            /**
+             * Unique user token
+             */
             token: {
                 type: String,
                 notify: true
             },
+
+            /**
+             * Unique device ID corresponding to smart plug
+             */
             device: {
                 type: String,
                 notify: true
             },
+
+            /**
+             * Response returned from TP-Link API
+             */
             result: {
                 type: String,
                 notify: true
@@ -47,8 +80,14 @@ class TplinkControl extends PolymerElement {
 
     connectedCallback() {
         super.connectedCallback();
+        this.queryPlugStatus();
     }
 
+
+    /**
+     * Authenticates using username and password
+     * Returns token
+     */
     authenticate() {
         if (!this.username || !this.password)
             return;
@@ -72,6 +111,9 @@ class TplinkControl extends PolymerElement {
         req.send(JSON.stringify(authMessage));
     }
 
+    /**
+     * Gets a list of TP-Link devices registered to the user
+     */
     getDevices() {
         if (!this.token)
             return;
@@ -96,6 +138,9 @@ class TplinkControl extends PolymerElement {
         req.send(JSON.stringify(deviceMessage));
     }
 
+    /**
+     * Sends command to toggle the smart plug's power
+     */
     togglePlug() {
         if (!this.device || !this.token)
             return;
@@ -122,6 +167,36 @@ class TplinkControl extends PolymerElement {
         this.status = !this.status;
         req.send(JSON.stringify(passthroughMessage));
     }
+
+    /**
+     * Get the current plug status (on/off)
+     */
+    queryPlugStatus() {
+        if (this.device && this.token) {
+            let req = new XMLHttpRequest();
+            let self = this;
+            req.open('POST', 'https://wap.tplinkcloud.com?token=' + this.token);
+            req.setRequestHeader('Content-type', 'application/json');
+    
+            req.onreadystatechange = function() {
+                if(req.readyState == 4 && req.status == 200) {
+                    let response = JSON.parse(req.responseText);
+                    if (response && response.result && response.result.responseData) {
+                        let responseData = JSON.parse(response.result.responseData);
+                        if (responseData && responseData.system && responseData.system.get_sysinfo) {
+                            let sysInfo = responseData.system.get_sysinfo;
+                            console.log(sysInfo.relay_state ? "on" : "off");
+                        }
+                    }
+                }
+            }
+    
+            statusMessage.params.deviceId = this.device;
+            req.send(JSON.stringify(statusMessage));
+        }
+
+        setTimeout(this.queryPlugStatus.bind(this), 1000);
+    };
 }
 
 customElements.define('tplink-control', TplinkControl);
