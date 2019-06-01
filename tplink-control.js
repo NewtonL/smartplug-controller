@@ -1,4 +1,5 @@
 import {PolymerElement, html} from '@polymer/polymer/polymer-element.js';
+import '@polymer/paper-toast/paper-toast.js'
 
 let authMessage = {
     method: 'login',
@@ -37,6 +38,7 @@ class TplinkControl extends PolymerElement {
 
     static get template() {
         return html`
+            <paper-toast id="toast" style="width: 100%"><paper-toast>
         `;
     }
 
@@ -73,7 +75,8 @@ class TplinkControl extends PolymerElement {
              */
             status: {
                 type: Boolean,
-                notify: true
+                notify: true,
+                observer: '_statusChanged'
             },
 
             /**
@@ -115,6 +118,11 @@ class TplinkControl extends PolymerElement {
             this.status = false;
             this.togglePlug();
         }
+    }
+
+    _statusChanged() {
+        this.$.toast.text = "Plug turned " + (this.status ? "on" : "off");
+        this.$.toast.open();
     }
 
     /**
