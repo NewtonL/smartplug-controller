@@ -43,13 +43,16 @@ class SmartplugApp extends PolymerElement {
             <paper-input id="deviceField" label="Device ID (get this from device output)" value="{{device}}"></paper-input>
             <br>Toggle Plug Power
             <paper-toggle-button id="switchToggle" on-change="_toggleChanged" checked="{{plugOn}}"></paper-toggle-button>
+            <br>Plug On Time: {{onTime}}
+            <paper-input id="timerInput" label="Turn off plug after X seconds" value="{{timer}}"></paper-input>
         </div>
         <div>
             <textarea id="resultArea" readonly>{{result}}</textarea>
         </div>
 
         <tplink-control id="control" username="{{username}}" password="{{password}}" token="{{token}}" 
-            device="{{device}}" status="{{plugOn}}" result="{{result}}"></tplink-control>
+            device="{{device}}" status="{{plugOn}}" result="{{result}}" on-time="{{onTime}}"
+            timer="{{timer}}"></tplink-control>
         `;
     }
 

@@ -69,6 +69,32 @@ class TplinkControl extends PolymerElement {
             },
 
             /**
+             * On/off status of the plug
+             */
+            status: {
+                type: Boolean,
+                notify: true
+            },
+
+            /**
+             * How long the plug has been on in seconds
+             */
+            onTime: {
+                type: Number,
+                notify: true,
+                value: 0,
+                observer: '_onTimeChanged'
+            },
+
+            /**
+             * How long to keep the plug on in seconds
+             */
+            timer: {
+                type: Number,
+                notify: true
+            },
+
+            /**
              * Response returned from TP-Link API
              */
             result: {
@@ -83,6 +109,13 @@ class TplinkControl extends PolymerElement {
         this.queryPlugStatus();
     }
 
+    _onTimeChanged() {
+        if (this.timer > 0 && this.onTime >= this.timer) {
+            // time to turn the plug off
+            this.status = false;
+            this.togglePlug();
+        }
+    }
 
     /**
      * Authenticates using username and password
@@ -185,7 +218,8 @@ class TplinkControl extends PolymerElement {
                         let responseData = JSON.parse(response.result.responseData);
                         if (responseData && responseData.system && responseData.system.get_sysinfo) {
                             let sysInfo = responseData.system.get_sysinfo;
-                            console.log(sysInfo.relay_state ? "on" : "off");
+                            self.status = sysInfo.relay_state ? true : false;
+                            self.onTime = sysInfo.on_time;
                         }
                     }
                 }
@@ -196,7 +230,7 @@ class TplinkControl extends PolymerElement {
         }
 
         setTimeout(this.queryPlugStatus.bind(this), 1000);
-    };
+    }
 }
 
 customElements.define('tplink-control', TplinkControl);
